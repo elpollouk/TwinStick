@@ -1,20 +1,5 @@
-Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"], (Config, FdUpdater, Math) => {
+Chicken.register("Game", ["Config", "Player", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"], (Config, Player, FdUpdater, Math) => {
     "use strict";
-
-    var Axes = {
-        MoveX: 0,
-        MoveY: 1,
-        ShootX: 2,
-        ShootY: 3
-    };
-
-    function getAxes(axes) {
-        var gamePad = navigator.getGamepads()[0];
-        if (!gamePad) return 0;
-        var v = gamePad.axes[axes];
-        if ((-Config.controller.deadzoneSize < v) && (v < Config.controller.deadzoneSize)) return 0;
-        return v;
-    }
 
     return Chicken.Class(function (draw) {
         var that = this;
@@ -25,7 +10,15 @@ Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.
         this.reset();
     }, {
         reset: function () {
-            this.playerPos = Math.vector2(Config.game.width / 2, Config.game.height / 2);
+            this.player = new Player();
+            this.player.onFire = (bv) => {
+                this.bullets.push({
+                    x: this.player.pos.x,
+                    y: this.player.pos.y,
+                    dX: bv.x,
+                    dY: bv.y
+                });
+            };
             this.bullets = [];
             this.enemies = [];
             this.spawnCount = 1;
@@ -40,14 +33,14 @@ Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.
         },
 
         _update: function (dt) {
-            this._updatePlayer(dt);
+            this.player.update(dt);
             this._updateEnemies(dt);
             this._updateBullets(dt);
         },
 
         _render: function (dt) {
             this.draw.rect(0, 0, Config.game.width, Config.game.height, "silver");
-            this.draw.circle(this.playerPos.x, this.playerPos.y, 15, "rgb(0, 255, 0)");
+            this.player.render(dt, this.draw);
     
             for (var i = 0; i < this.enemies.length; i++)
                 this.draw.circle(this.enemies[i].x, this.enemies[i].y, 15, "orange");
@@ -56,33 +49,6 @@ Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.
                 this.draw.circle(this.bullets[i].x, this.bullets[i].y, 5, "rgb(255, 0, 0)");
     
             this.draw.text(`${this.score}`, 5, 5);
-        },
-
-        _updatePlayer: function (dt) {
-            var dX = Config.player.speed * getAxes(Axes.MoveX) * dt;
-            var dY = Config.player.speed * getAxes(Axes.MoveY) * dt;
-    
-            this.playerPos.x += dX;
-            this.playerPos.y += dY;
-    
-            if (this.playerPos.x < 15) this.playerPos.x = 15;
-            else if (this.playerPos.x > 785) this.playerPos.x = 785;
-            if (this.playerPos.y < 15) this.playerPos.y = 15;
-            else if (this.playerPos.y > 585) this.playerPos.y = 585;
-    
-            var bv = Math.vector2(getAxes(Axes.ShootX), getAxes(Axes.ShootY));
-            this.currentShotTime -= dt;
-            if ((bv.x + bv.y) !== 0.0 && this.currentShotTime <= 0) {
-                Math.normalise2(bv);
-                Math.scale2(bv, Config.bullet.speed);
-                this.bullets.push({
-                    x: this.playerPos.x,
-                    y: this.playerPos.y,
-                    dX: bv.x,
-                    dY: bv.y
-                });
-                this.currentShotTime = Config.player.shotPeriod;
-            }
         },
     
         _updateBullets: function (dt) {
@@ -122,7 +88,7 @@ Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.
                         var y = Math.randomRange(0, Config.game.height);
                         ev = Math.vector2(x, y);
                     }
-                    while (Math.distanceBetweenSqrd2(this.playerPos, ev) < Config.enemy.minSpawnDistance);
+                    while (Math.distanceBetweenSqrd2(this.player.pos, ev) < Config.enemy.minSpawnDistance);
     
                     this.enemies.push(ev);
                 }
@@ -131,11 +97,11 @@ Chicken.register("Game", ["Config", "ChickenVis.FixedDeltaUpdater", "ChickenVis.
     
             for (var i = 0; i < this.enemies.length; i++) {
                 var ev = this.enemies[i];
-                var d = Math.subAndClone2(this.playerPos, ev);
+                var d = Math.subAndClone2(this.player.pos, ev);
                 Math.normalise2(d);
                 Math.scaleAdd2(ev, d, Config.enemy.speed * dt);
     
-                if (Math.distanceBetweenSqrd2(this.playerPos, ev) <= 30*30) {
+                if (Math.distanceBetweenSqrd2(this.player.pos, ev) <= 30*30) {
                     this.reset();
                 }
             }
