@@ -1,21 +1,15 @@
-Chicken.inject(["ChickenVis.UpdateLoop", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Draw", "ChickenVis.Math"],
-function (UpdateLoop, FdUpdater, Draw, Math) {
+Chicken.inject(["Config", "ChickenVis.UpdateLoop", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Draw", "ChickenVis.Math"],
+function (Config, UpdateLoop, FdUpdater, Draw, Math) {
     "use strict";
 
-    var playerSpeed = 300;
-    var enemySpeed = 100;
-    var bulletSpeed = 600;
-    var shotTime = 0.1;
-    var enemyTime = 2;
-    var minEnemySpawnDistance = 150 * 150;
-
+    Config.enemy.minSpawnDistance *= Config.enemy.minSpawnDistance;
 
     var draw;
     var frameCount = 0;
     var score = 0;
     var playerPos = Math.vector2(400, 300);
     var spawnCount = 1;
-    var currentEnemyTime = 3.0;
+    var currentEnemyTime = Config.enemy.intialSpawnDelay;
     var currentShotTime = 0;
     var bullets = [];
     var enemies = [];
@@ -37,8 +31,8 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
         var gamePad = navigator.getGamepads()[0];
         if (!gamePad) return;
 
-        var dX = playerSpeed * getAxes(gamePad, 0) * dt;
-        var dY = playerSpeed * getAxes(gamePad, 1) * dt;
+        var dX = Config.player.speed * getAxes(gamePad, 0) * dt;
+        var dY = Config.player.speed * getAxes(gamePad, 1) * dt;
 
         playerPos.x += dX;
         playerPos.y += dY;
@@ -52,14 +46,14 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
         currentShotTime -= dt;
         if (Math.lengthSqrd2(bv) >= 0.5 && currentShotTime <= 0) {
             Math.normalise2(bv);
-            Math.scale2(bv, bulletSpeed);
+            Math.scale2(bv, Config.bullet.speed);
             bullets.push({
                 x: playerPos.x,
                 y: playerPos.y,
                 dX: bv.x,
                 dY: bv.y
             });
-            currentShotTime = shotTime;
+            currentShotTime = Config.player.shotFrequency;
         }
     }
 
@@ -90,7 +84,7 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
     function updateEnemies(dt) {
         currentEnemyTime -= dt;
         if (currentEnemyTime <= 0) {
-            currentEnemyTime = enemyTime;
+            currentEnemyTime = Config.enemy.spawnFrequency;
             var neededEnemies = spawnCount - enemies.length;
             for (var i = 0; i < neededEnemies; i++) {
                 var ev;
@@ -100,7 +94,7 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
                     var y = Math.randomRange(0, 600);
                     ev = Math.vector2(x, y);
                 }
-                while (Math.distanceBetweenSqrd2(playerPos, ev) < minEnemySpawnDistance);
+                while (Math.distanceBetweenSqrd2(playerPos, ev) < Config.enemy.minSpawnDistance);
 
                 enemies.push(ev);
             }
@@ -111,7 +105,7 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
             var ev = enemies[i];
             var d = Math.subAndClone2(playerPos, ev);
             Math.normalise2(d);
-            Math.scaleAdd2(ev, d, enemySpeed * dt);
+            Math.scaleAdd2(ev, d, Config.enemy.speed * dt);
 
             if (Math.distanceBetweenSqrd2(playerPos, ev) <= 30*30) {
                 playerPos = Math.vector2(400, 300);
@@ -119,7 +113,7 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
                 enemies = [];
                 spawnCount = 1;
                 currentShotTime = 0;
-                currentEnemyTime = 3.0;
+                currentEnemyTime = Config.enemy.intialSpawnDelay;
                 score = 0;
             }
         }
