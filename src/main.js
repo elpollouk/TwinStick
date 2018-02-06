@@ -2,9 +2,9 @@ Chicken.inject(["ChickenVis.UpdateLoop", "ChickenVis.FixedDeltaUpdater", "Chicke
 function (UpdateLoop, FdUpdater, Draw, Math) {
     "use strict";
 
-    var playerSpeed = 10;
-    var enemySpeed = 3;
-    var bulletSpeed = 20;
+    var playerSpeed = 300;
+    var enemySpeed = 100;
+    var bulletSpeed = 600;
     var shotTime = 0.1;
     var enemyTime = 2;
     var minEnemySpawnDistance = 150 * 150;
@@ -21,7 +21,11 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
     var enemies = [];
 
 
-    //var fixedUpdater = new FdUpdater(Core.onUpdate, 0.010);
+    var fixedUpdater = new FdUpdater((dt) => {
+        updatePlayer(dt);
+        updateEnemies(dt);
+        updateBullets(dt);
+    }, 0.010);
 
     function getAxes(gamePad, axes) {
         var v = gamePad.axes[axes];
@@ -33,8 +37,8 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
         var gamePad = navigator.getGamepads()[0];
         if (!gamePad) return;
 
-        var dX = playerSpeed * getAxes(gamePad, 0);
-        var dY = playerSpeed * getAxes(gamePad, 1);
+        var dX = playerSpeed * getAxes(gamePad, 0) * dt;
+        var dY = playerSpeed * getAxes(gamePad, 1) * dt;
 
         playerPos.x += dX;
         playerPos.y += dY;
@@ -64,19 +68,21 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
         bullets = [];
         for (var i = 0; i < oldBullets.length; i++) {
             var b = oldBullets[i];
-            b.x += b.dX;
-            b.y += b.dY;
+            b.x += b.dX * dt;
+            b.y += b.dY * dt;
 
+            var hit = false;
             for (var j = 0; j < enemies.length; j++) {
                 var enemy = enemies[j];
                 if (Math.distanceBetweenSqrd2(enemy, b) <= (15*15)) {
                     enemies.splice(j, 1);
                     score++;
+                    hit = true;
                     break;
                 }
             }
 
-            if ((0 < b.x) && (b.x < 800) && (0 < b.y) && (b.y < 600))
+            if (!hit && (0 < b.x) && (b.x < 800) && (0 < b.y) && (b.y < 600))
                 bullets.push(b);
         }
     }
@@ -105,7 +111,7 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
             var ev = enemies[i];
             var d = Math.subAndClone2(playerPos, ev);
             Math.normalise2(d);
-            Math.scaleAdd2(ev, d, enemySpeed);
+            Math.scaleAdd2(ev, d, enemySpeed * dt);
 
             if (Math.distanceBetweenSqrd2(playerPos, ev) <= 30*30) {
                 playerPos = Math.vector2(400, 300);
@@ -120,11 +126,9 @@ function (UpdateLoop, FdUpdater, Draw, Math) {
     }
 
     var updater = new UpdateLoop(function (dt) {
-        draw.rect(0, 0, 800, 600, "silver");
+        fixedUpdater.update(dt);
 
-        updatePlayer(dt);
-        updateEnemies(dt);
-        updateBullets(dt);
+        draw.rect(0, 0, 800, 600, "silver");
         draw.circle(playerPos.x, playerPos.y, 15, "rgb(0, 255, 0)");
 
         for (var i = 0; i < enemies.length; i++)
