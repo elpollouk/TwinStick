@@ -6,7 +6,7 @@ Chicken.register("Config", [], () => {
             height: 600,
         },
         controller: {
-            deadzoneSize: 0.3,
+            deadzoneSize: 0.2,
         },
         player: {
             speed: 250,
