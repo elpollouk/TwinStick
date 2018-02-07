@@ -30,6 +30,14 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
             this._currentShotTime = 0;
         },
 
+        _jitter: function (v) {
+            var jitter = Config.player.jitter;
+            var x = Math.randomRange(-jitter, jitter);
+            var y = Math.randomRange(-jitter, jitter);
+            v.x += x;
+            v.y += y;
+        },
+
         update: function (dt) {
             var dX = Config.player.speed * getAxes(Axes.MoveX) * dt;
             var dY = Config.player.speed * getAxes(Axes.MoveY) * dt;
@@ -45,6 +53,7 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
             var bv = Math.vector2(getAxes(Axes.ShootX), getAxes(Axes.ShootY));
             this._currentShotTime -= dt;
             if ((bv.x + bv.y) !== 0.0 && this._currentShotTime <= 0) {
+                this._jitter(bv);
                 this.game.spawnBullet(this.pos, bv);
                 this._currentShotTime = Config.player.shotPeriod;
             }
