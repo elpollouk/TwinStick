@@ -13,7 +13,7 @@ Chicken.register("Bullet", ["Config", "ChickenVis.Math"], (Config, Math) => {
             var enemies = this.game.enemies;
             for (var i = 0; i < enemies.length; i++) {
                 var enemy = enemies[i];
-                if (Math.distanceBetweenSqrd2(enemy, this.pos) <= (15*15)) {
+                if (Math.distanceBetweenSqrd2(enemy.pos, this.pos) <= (15*15)) {
                     enemies.splice(i, 1);
                     this.game.score++;
                     hit = true;
