@@ -5,6 +5,7 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.Fix
     return Chicken.Class(function (draw) {
         var that = this;
         this.draw = draw;
+        this.highScore = 0;
         this.fixedUpdater = new FdUpdater((dt) => {
             that._update(dt);
         }, Config.game.updatePeriod);
@@ -34,6 +35,18 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.Fix
             this.bullets.splice(i, 1);
         },
 
+        killEnemy: function (enemy) {
+            var i = this.enemies.indexOf(enemy);
+            this.enemies.splice(i, 1);
+            this.score++;
+        },
+
+        killPlayer: function () {
+            if (this.highScore < this.score)
+                this.highScore = this.score;
+            this.reset();
+        },
+
         _update: function (dt) {
             this.player.update(dt);
             this._updateEnemies(dt);
@@ -51,6 +64,7 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.Fix
                 this.bullets[i].render(dt, this.draw);
     
             this.draw.text(`${this.score}`, 5, 5);
+            this.draw.text(`${this.highScore}`, 5, 15);
         },
     
         _updateBullets: function (dt) {

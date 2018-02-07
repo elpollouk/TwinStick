@@ -15,7 +15,7 @@ Chicken.register("Enemy", ["Config", "ChickenVis.Math"], (Config, Math) => {
             Math.scaleAdd2(this.pos, d, Config.enemy.speed * dt);
 
             if (Math.distanceBetweenSqrd2(playerPos, this.pos) <= playerEnemySizeSqrd)
-                this.game.reset();
+                this.game.killPlayer();
         },
 
         render: function (dt, draw) {
