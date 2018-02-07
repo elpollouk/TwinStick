@@ -1,4 +1,5 @@
-Chicken.register("Game", ["Config", "Player", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"], (Config, Player, FdUpdater, Math) => {
+Chicken.register("Game", ["Config", "Player", "Bullet", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
+(Config, Player, Bullet, FdUpdater, Math) => {
     "use strict";
 
     return Chicken.Class(function (draw) {
@@ -10,15 +11,7 @@ Chicken.register("Game", ["Config", "Player", "ChickenVis.FixedDeltaUpdater", "C
         this.reset();
     }, {
         reset: function () {
-            this.player = new Player();
-            this.player.onFire = (bv) => {
-                this.bullets.push({
-                    x: this.player.pos.x,
-                    y: this.player.pos.y,
-                    dX: bv.x,
-                    dY: bv.y
-                });
-            };
+            this.player = new Player(this);
             this.bullets = [];
             this.enemies = [];
             this.spawnCount = 1;
@@ -30,6 +23,15 @@ Chicken.register("Game", ["Config", "Player", "ChickenVis.FixedDeltaUpdater", "C
         update: function (dt) {
             this.fixedUpdater.update(dt);
             this._render(dt);
+        },
+
+        spawnBullet: function (pos, vel) {
+            this.bullets.push(new Bullet(this, pos, vel));
+        },
+
+        removeBullet: function (bullet) {
+            var i = this.bullets.indexOf(bullet);
+            this.bullets.splice(i, 1);
         },
 
         _update: function (dt) {
@@ -46,33 +48,14 @@ Chicken.register("Game", ["Config", "Player", "ChickenVis.FixedDeltaUpdater", "C
                 this.draw.circle(this.enemies[i].x, this.enemies[i].y, 15, "orange");
     
             for (var i = 0; i < this.bullets.length; i++)
-                this.draw.circle(this.bullets[i].x, this.bullets[i].y, 5, "rgb(255, 0, 0)");
+                this.bullets[i].render(dt, this.draw);
     
             this.draw.text(`${this.score}`, 5, 5);
         },
     
         _updateBullets: function (dt) {
-            var oldBullets = this.bullets;
-            this.bullets = [];
-            for (var i = 0; i < oldBullets.length; i++) {
-                var b = oldBullets[i];
-                b.x += b.dX * dt;
-                b.y += b.dY * dt;
-    
-                var hit = false;
-                for (var j = 0; j < this.enemies.length; j++) {
-                    var enemy = this.enemies[j];
-                    if (Math.distanceBetweenSqrd2(enemy, b) <= (15*15)) {
-                        this.enemies.splice(j, 1);
-                        this.score++;
-                        hit = true;
-                        break;
-                    }
-                }
-    
-                if (!hit && (0 < b.x) && (b.x < Config.game.width) && (0 < b.y) && (b.y < Config.game.height))
-                    this.bullets.push(b);
-            }
+            for (var i = 0; i < this.bullets.length; i++)
+                this.bullets[i].update(dt);
         },
     
         _updateEnemies: function (dt) {

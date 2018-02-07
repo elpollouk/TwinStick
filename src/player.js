@@ -1,5 +1,6 @@
 Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
-    
+    "use strict";
+
     var Axes = {
         MoveX: 0,
         MoveY: 1,
@@ -15,8 +16,8 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
         return v;
     };
 
-    return Chicken.Class(function () {
-        this.onFire = null;
+    return Chicken.Class(function (game) {
+        this.game = game;
         this.reset();
     }, {
         reset: function () {
@@ -39,9 +40,7 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
             var bv = Math.vector2(getAxes(Axes.ShootX), getAxes(Axes.ShootY));
             this._currentShotTime -= dt;
             if ((bv.x + bv.y) !== 0.0 && this._currentShotTime <= 0) {
-                Math.normalise2(bv);
-                Math.scale2(bv, Config.bullet.speed);
-                this.onFire(bv);
+                this.game.spawnBullet(this.pos, bv);
                 this._currentShotTime = Config.player.shotPeriod;
             }
         },
