@@ -13,7 +13,7 @@ Chicken.register("Bullet", ["Config", "ChickenVis.Math"], (Config, Math) => {
             var enemies = this.game.enemies;
             for (var i = 0; i < enemies.length; i++) {
                 var enemy = enemies[i];
-                if (Math.distanceBetweenSqrd2(enemy.pos, this.pos) <= (15*15)) {
+                if (Math.distanceBetweenSqrd2(enemy.pos, this.pos) <= Config.enemy.sizeSqrd) {
                     enemies.splice(i, 1);
                     this.game.score++;
                     hit = true;
@@ -26,7 +26,7 @@ Chicken.register("Bullet", ["Config", "ChickenVis.Math"], (Config, Math) => {
         },
 
         render: function (dt, draw) {
-            draw.circle(this.pos.x, this.pos.y, 5, "rgb(255, 0, 0)");
+            draw.circle(this.pos.x, this.pos.y, Config.bullet.size, Config.bullet.colour);
         }
     });
 

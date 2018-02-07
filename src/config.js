@@ -1,23 +1,38 @@
-Chicken.register("Config", {
-    game: {
-        updatePeriod: 0.01,
-        width: 800,
-        height: 600,
-    },
-    controller: {
-        deadzoneSize: 0.3,
-    },
-    player: {
-        speed: 300,
-        shotPeriod: 0.1,
-    },
-    enemy: {
-        speed: 100,
-        spawnPeriod: 2,
-        intialSpawnDelay: 3,
-        minSpawnDistance: 150 * 150,
-    },
-    bullet: {
-        speed: 600,
-    }
+Chicken.register("Config", [], () => {
+    var config = {
+        game: {
+            updatePeriod: 0.01,
+            width: 800,
+            height: 600,
+        },
+        controller: {
+            deadzoneSize: 0.3,
+        },
+        player: {
+            speed: 300,
+            shotPeriod: 0.1,
+            size: 15,
+            colour: "rgb(0, 255, 0)",
+        },
+        enemy: {
+            speed: 100,
+            spawnPeriod: 2,
+            intialSpawnDelay: 3,
+            minSpawnDistance: 150,
+            size: 15,
+            colour: "orange",
+        },
+        bullet: {
+            speed: 600,
+            size: 5,
+            colour: "red",
+        }
+    };
+
+    config.enemy.minSpawnDistanceSqrd = config.enemy.minSpawnDistance * config.enemy.minSpawnDistance;
+    config.player.sizeSqrd = config.player.size * config.player.size;
+    config.enemy.sizeSqrd = config.enemy.size * config.enemy.size;
+    config.bullet.sizeSqrd = config.bullet.size * config.bullet.size;
+
+    return config;
 });

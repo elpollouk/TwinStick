@@ -71,7 +71,7 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.Fix
                         var y = Math.randomRange(0, Config.game.height);
                         pos = Math.vector2(x, y);
                     }
-                    while (Math.distanceBetweenSqrd2(this.player.pos, pos) < Config.enemy.minSpawnDistance);
+                    while (Math.distanceBetweenSqrd2(this.player.pos, pos) < Config.enemy.minSpawnDistanceSqrd);
     
                     this.enemies.push(new Enemy(this, pos));
                 }

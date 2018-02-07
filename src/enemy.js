@@ -1,6 +1,9 @@
 Chicken.register("Enemy", ["Config", "ChickenVis.Math"], (Config, Math) => {
     "use strict";
 
+    var playerEnemySizeSqrd = Config.player.size + Config.enemy.size;
+    playerEnemySizeSqrd *= playerEnemySizeSqrd;
+
     return Chicken.Class(function (game, pos) {
         this.game = game;
         this.pos = Math.clone2(pos);
@@ -11,12 +14,12 @@ Chicken.register("Enemy", ["Config", "ChickenVis.Math"], (Config, Math) => {
             Math.normalise2(d);
             Math.scaleAdd2(this.pos, d, Config.enemy.speed * dt);
 
-            if (Math.distanceBetweenSqrd2(playerPos, this.pos) <= 30*30)
+            if (Math.distanceBetweenSqrd2(playerPos, this.pos) <= playerEnemySizeSqrd)
                 this.game.reset();
         },
 
         render: function (dt, draw) {
-            draw.circle(this.pos.x, this.pos.y, 15, "orange");
+            draw.circle(this.pos.x, this.pos.y, Config.enemy.size, Config.enemy.colour);
         }
     });
 });

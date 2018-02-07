@@ -1,6 +1,11 @@
 Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
     "use strict";
 
+    var minX = Config.player.size;
+    var maxX = Config.game.width - Config.player.size;
+    var minY = Config.player.size;
+    var maxY = Config.game.height - Config.player.size;
+
     var Axes = {
         MoveX: 0,
         MoveY: 1,
@@ -32,10 +37,10 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
             this.pos.x += dX;
             this.pos.y += dY;
     
-            if (this.pos.x < 15) this.pos.x = 15;
-            else if (this.pos.x > 785) this.pos.x = 785;
-            if (this.pos.y < 15) this.pos.y = 15;
-            else if (this.pos.y > 585) this.pos.y = 585;
+            if (this.pos.x < minX) this.pos.x = minX;
+            else if (this.pos.x > maxX) this.pos.x = maxX;
+            if (this.pos.y < minY) this.pos.y = minY;
+            else if (this.pos.y > maxY) this.pos.y = maxY;
     
             var bv = Math.vector2(getAxes(Axes.ShootX), getAxes(Axes.ShootY));
             this._currentShotTime -= dt;
@@ -46,7 +51,7 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
         },
 
         render: function (dt, draw) {
-            draw.circle(this.pos.x, this.pos.y, 15, "rgb(0, 255, 0)");
+            draw.circle(this.pos.x, this.pos.y, Config.player.size, Config.player.colour);
         },
     });
 });
