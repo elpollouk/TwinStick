@@ -27,6 +27,9 @@ Chicken.register("Config", [], () => {
             speed: 400,
             size: 5,
             colour: "red",
+        },
+        fieldVisualiser: {
+            stride: 5
         }
     };
 
