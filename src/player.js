@@ -6,23 +6,9 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
     var minY = Config.player.size;
     var maxY = Config.game.height - Config.player.size;
 
-    var Axes = {
-        MoveX: 0,
-        MoveY: 1,
-        ShootX: 2,
-        ShootY: 3
-    };
-
-    function getAxes(axes) {
-        var gamePad = navigator.getGamepads()[0];
-        if (!gamePad) return 0;
-        var v = gamePad.axes[axes];
-        if ((-Config.controller.deadzoneSize < v) && (v < Config.controller.deadzoneSize)) return 0;
-        return v;
-    };
-
-    return Chicken.Class(function (game) {
-        this.game = game;
+    return Chicken.Class(function (game, controller) {
+        this._game = game;
+        this._controller = controller;
         this.reset();
     }, {
         reset: function () {
@@ -39,8 +25,8 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
         },
 
         update: function (dt) {
-            var dX = Config.player.speed * getAxes(Axes.MoveX) * dt;
-            var dY = Config.player.speed * getAxes(Axes.MoveY) * dt;
+            var dX = Config.player.speed * this._controller.move.x * dt;
+            var dY = Config.player.speed * this._controller.move.y * dt;
     
             this.pos.x += dX;
             this.pos.y += dY;
@@ -50,11 +36,11 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
             if (this.pos.y < minY) this.pos.y = minY;
             else if (this.pos.y > maxY) this.pos.y = maxY;
     
-            var bv = Math.vector2(getAxes(Axes.ShootX), getAxes(Axes.ShootY));
+            var shoot = Math.clone2(this._controller.shoot);
             this._currentShotTime -= dt;
-            if ((bv.x + bv.y) !== 0.0 && this._currentShotTime <= 0) {
-                this._jitter(bv);
-                this.game.spawnBullet(this.pos, bv);
+            if ((shoot.x + shoot.y) !== 0.0 && this._currentShotTime <= 0) {
+                this._jitter(shoot);
+                this._game.spawnBullet(this.pos, shoot);
                 this._currentShotTime = Config.player.shotPeriod;
             }
         },

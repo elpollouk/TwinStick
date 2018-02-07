@@ -1,18 +1,19 @@
-Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
-(Config, Player, Bullet, Enemy, FdUpdater, Math) => {
+Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
+(Config, Player, Bullet, Enemy, Gamepad, FdUpdater, Math) => {
     "use strict";
 
     return Chicken.Class(function (draw) {
         var that = this;
         this.draw = draw;
         this.highScore = 0;
+        this.controller = new Gamepad();
         this.fixedUpdater = new FdUpdater((dt) => {
             that._update(dt);
         }, Config.game.updatePeriod);
         this.reset();
     }, {
         reset: function () {
-            this.player = new Player(this);
+            this.player = new Player(this, this.controller);
             this.bullets = [];
             this.enemies = [];
             this.spawnCount = 1;
@@ -22,6 +23,7 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "ChickenVis.Fix
         },
 
         update: function (dt) {
+            this.controller.update(dt);
             this.fixedUpdater.update(dt);
             this._render(dt);
         },
