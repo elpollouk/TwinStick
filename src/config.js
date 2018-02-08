@@ -4,6 +4,8 @@ Chicken.register("Config", [], () => {
             updatePeriod: 0.01,
             width: 800,
             height: 600,
+            burstScore: 50,
+            burstSize: 24,
         },
         controller: {
             deadzoneSize: 0.2,

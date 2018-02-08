@@ -37,10 +37,21 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "Chi
             this.bullets.splice(i, 1);
         },
 
+        fireBurst: function (pos) {
+            var dir = Math.vector2(0, 1);
+            var rot = Math.TWO_PI / Config.game.burstSize;
+            for (var i = 0; i < Config.game.burstSize; i++) {
+                this.spawnBullet(pos, dir);
+                Math.rotate2(dir, rot);
+            }
+        },
+
         killEnemy: function (enemy) {
             var i = this.enemies.indexOf(enemy);
             this.enemies.splice(i, 1);
             this.score++;
+            if (this.score % Config.game.burstScore === 0)
+                this.fireBurst(this.player.pos);
         },
 
         killPlayer: function () {
@@ -120,7 +131,7 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "Chi
     
             for (var i = 0; i < this.enemies.length; i++)
                 this.enemies[i].update(dt);
-        }
+        },
     });
 
 });
