@@ -12,10 +12,10 @@ Chicken.register("Config", [], () => {
         player: {
             acceleration: 25,
             friction: 0.92,
-            shotPeriod: 0.15,
+            shotPeriod: 0.1,
             size: 15,
             colour: "rgb(0, 255, 0)",
-            jitter: 0.1,
+            jitter: 0.2,
         },
         enemy: {
             speed: 100,
