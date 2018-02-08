@@ -49,6 +49,16 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "Chi
             this.reset();
         },
 
+        enforceBounds: function(vector2, width) {
+            var maxX = Config.game.width - width;
+            var maxY = Config.game.height - width;
+
+            if (vector2.x < width) vector2.x = width;
+            else if (vector2.x > maxX) vector2.x = maxX;
+            if (vector2.y < width) vector2.y = width;
+            else if (vector2.y > maxY) vector2.y = maxY;
+        },
+
         _update: function (dt) {
             this.player.update(dt);
             this._updateEnemies(dt);
