@@ -18,6 +18,7 @@ Chicken.register("Config", [], () => {
             size: 15,
             colour: "rgb(0, 255, 0)",
             jitter: 0.2,
+            aimbot: false,
         },
         enemy: {
             speed: 100,
