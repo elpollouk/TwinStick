@@ -6,6 +6,7 @@ Chicken.register("Config", [], () => {
             height: 600,
             burstScore: 50,
             burstSize: 24,
+            enableSounds: true,
         },
         controller: {
             deadzoneSize: 0.2,

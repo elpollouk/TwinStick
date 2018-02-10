@@ -56,6 +56,7 @@ Chicken.register("Player", ["Config", "ChickenVis.Math"], (Config, Math) => {
                 this._jitter(shoot);
                 this._game.spawnBullet(this.pos, shoot);
                 this._currentShotTime = Config.player.shotPeriod;
+                this._game.sounds.playPlayerShot();
             }
         },
 
