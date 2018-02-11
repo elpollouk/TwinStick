@@ -1,5 +1,5 @@
 Chicken.inject(["Config", "ConfigParser", "Game", "FieldVisualiser", "ChickenVis.UpdateLoop", "ChickenVis.Draw"],
-function (Config, ConfigPraser, Game, FieldVisualiser, UpdateLoop, Draw) {
+function (Config, parseConfig, Game, FieldVisualiser, UpdateLoop, Draw) {
     "use strict";
 
     var visualiser;
@@ -10,7 +10,7 @@ function (Config, ConfigPraser, Game, FieldVisualiser, UpdateLoop, Draw) {
     });
 
     window.onload = () => {
-        ConfigPraser();
+        parseConfig();
         var draw = new Draw(document.body, Config.game.width, Config.game.height);
         game = new Game(draw);
         visualiser = new FieldVisualiser(draw.context, document.body);
