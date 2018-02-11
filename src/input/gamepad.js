@@ -8,12 +8,43 @@ Chicken.register("Gamepad", ["Config", "ChickenVis.Math"], (Config, Math) => {
         ShootY: 3
     };
 
-    var _isDisconnected = true;
+    var _gamePadIndex = -1;
 
-    function getAxes(axes) {
-        var gamePad = navigator.getGamepads()[0];
-        _isDisconnected = !gamePad;
-        if (_isDisconnected) return 0;
+    function isDisconnect() {
+        return _gamePadIndex === -1;
+    }
+
+    function isButtonDown(gamePad) {
+        if (!gamePad) return false;
+        if (gamePad.axes.length < 4) return false; // Not a gamepad we can play with
+        for (var i = 0; i < gamePad.buttons.length; i++) {
+            if (gamePad.buttons[i].pressed)
+                return true;
+        }
+
+        return false;
+    }
+
+    function getGamePad() {
+        var gamePads = navigator.getGamepads();
+        var gamePad = isDisconnect() ? null : gamePads[_gamePadIndex];
+        
+        if (!gamePad) {
+            // Scan for an active gamepad
+            _gamePadIndex = -1;
+            for (var i = 0; i < gamePads.length; i++) {
+                if (isButtonDown(gamePads[i])) {
+                    gamePad = gamePads[i];
+                    _gamePadIndex = i;
+                }
+            }
+        }
+
+        return gamePad;
+    }
+
+    function getAxes(gamePad, axes) {
+        if (!gamePad) return 0;
         var v = gamePad.axes[axes];
         if ((-Config.controller.deadzoneSize < v) && (v < Config.controller.deadzoneSize)) return 0;
         return v;
@@ -22,17 +53,25 @@ Chicken.register("Gamepad", ["Config", "ChickenVis.Math"], (Config, Math) => {
     return Chicken.Class(function () {
         this.move = Math.vector2(0, 0);
         this.shoot = Math.vector2(0, 0);
+        this._buttonPressed = false;
     }, {
         update: function (dt) {
-            this.move.x = getAxes(Axes.MoveX);
-            this.move.y = getAxes(Axes.MoveY);
-            this.shoot.x = getAxes(Axes.ShootX);
-            this.shoot.y = getAxes(Axes.ShootY);
+            var gamePad = getGamePad();
+            this.move.x = getAxes(gamePad, Axes.MoveX);
+            this.move.y = getAxes(gamePad, Axes.MoveY);
+            this.shoot.x = getAxes(gamePad, Axes.ShootX);
+            this.shoot.y = getAxes(gamePad, Axes.ShootY);
+            this._pressed = isButtonDown(gamePad);
         }
     }, {
         isDisconnected: {
+            get: isDisconnect,
+            enumerable: true
+        },
+
+        isButtonPressed: {
             get: function () {
-                return _isDisconnected;
+                return this._buttonPressed;
             },
             enumerable: true
         }
