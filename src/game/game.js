@@ -1,12 +1,13 @@
-Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "SoundPlayer", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
-(Config, Player, Bullet, Enemy, Gamepad, SoundPlayer, FdUpdater, Math) => {
+Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "SoundPlayer", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
+(Config, Player, Bullet, Enemy, SoundPlayer, FdUpdater, Math) => {
     "use strict";
 
-    return Chicken.Class(function (draw) {
+    return Chicken.Class(function (draw, controller) {
         var that = this;
         this.draw = draw;
         this.highScore = 0;
-        this.controller = new Gamepad();
+        this.lastScore = 0;
+        this.controller = controller;
         this.fixedUpdater = new FdUpdater((dt) => {
             that._update(dt);
         }, Config.game.updatePeriod);
@@ -62,6 +63,8 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "Sou
         killPlayer: function () {
             if (this.highScore < this.score)
                 this.highScore = this.score;
+
+            this.lastScore = this.score;
             this.reset();
 
             this.sounds.playPlayerDeath();
@@ -93,8 +96,9 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Gamepad", "Sou
             for (var i = 0; i < this.bullets.length; i++)
                 this.bullets[i].render(dt, this.draw);
     
-            this.draw.text(`${this.score}`, 5, 5);
-            this.draw.text(`${this.highScore}`, 5, 15);
+            this.draw.text(`Score      : ${this.score}`, 5, 5);
+            this.draw.text(`Last Score : ${this.lastScore}`, 5, 15)
+            this.draw.text(`High Score : ${this.highScore}`, 5, 25);
 
             this._renderControllerWarning();
         },

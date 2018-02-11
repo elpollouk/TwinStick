@@ -1,5 +1,5 @@
-Chicken.inject(["Config", "ConfigParser", "Game", "FieldVisualiser", "ChickenVis.UpdateLoop", "ChickenVis.Draw"],
-function (Config, parseConfig, Game, FieldVisualiser, UpdateLoop, Draw) {
+Chicken.inject(["Config", "ConfigParser", "Gamepad", "Ai.Controller", "Game", "FieldVisualiser", "ChickenVis.UpdateLoop", "ChickenVis.Draw"],
+function (Config, parseConfig, Gamepad, AiController, Game, FieldVisualiser, UpdateLoop, Draw) {
     "use strict";
 
     var visualiser;
@@ -12,7 +12,8 @@ function (Config, parseConfig, Game, FieldVisualiser, UpdateLoop, Draw) {
     window.onload = () => {
         parseConfig();
         var draw = new Draw(document.body, Config.game.width, Config.game.height);
-        game = new Game(draw);
+        var controller = Config.player.aiController ? new AiController() : new Gamepad();
+        game = new Game(draw, controller);
         visualiser = new FieldVisualiser(draw.context, document.body);
         updater.paused = false;
     }
