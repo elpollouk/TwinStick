@@ -53,12 +53,12 @@ Chicken.register("Ai.Volume", [], () => {
             for (var cz = 0; cz <  this._depth; cz++)
                 for (var cy = 0; cy < rangeY; cy++)
                     for (var cx = 0; cx < rangeX; cx++)
-                        sum = this.getAt(x + cx, y + cy, z) * filterVolume.getAt(cx, cy, cz);
+                        sum = this.getAt(x + cx, y + cy, cz) * filterVolume.getAt(cx, cy, cz);
 
             return sum;
         },
 
-        filter: function (filterVolume, outputVolume, outputZ) {
+        filterReLU: function (filterVolume, outputVolume, outputZ) {
             outputZ = outputZ || 0;
 
             if (this._depth != filterVolume.depth)
@@ -70,8 +70,29 @@ Chicken.register("Ai.Volume", [], () => {
                 throw new Error("Output volume size doesn't match filter output size");
 
             outputVolume.fillAtZ((x, y, z) => {
-                return this.filterSection(x, y, filterVolume);
+                var v = this.filterSection(x, y, filterVolume);
+                return 0 < v ? v : 0;
             }, outputZ);
+        },
+
+        maxPool: function (outputVolume) {
+            if (this._depth != outputVolume.depth)
+                throw new Error("Volume depths don't match");
+            if (outputVolume.width !== (this._width / 2) || outputVolume.height !== (this._height / 2))
+                throw new Error('Output volume dimensions are not half input volume');
+
+            for (var z = 0; z < this._depth; z++)
+                for (var y = 0; y < outputVolume.height; y++)
+                    for (var x = 0; x < outputVolume.width; x++) {
+                        var v = this.getAt(x*2, y*2, z);
+                        var t = this.getAt((x*2) + 1, y*2, z);
+                        v = t < v ? v : t;
+                        t = this.getAt((x*2), (y*2)+1, z);
+                        v = t < v ? v : t;
+                        t = this.getAt((x*2)+1,(y*2)+1, z);
+                        v = t < x ? v : t;
+                        outputVolume.setAt(x, y, z, v);
+                    }
         },
 
         modify: function (modifyFunc) {
@@ -102,6 +123,12 @@ Chicken.register("Ai.Volume", [], () => {
             },
             enumerable: true
         },
+        raw: {
+            get: function () {
+                return this._array;
+            },
+            enumerable: true
+        }
     }, {
         ZERO: (x, y, z) => 0,
         RANDOM: (x, y, z) => Math.random(),

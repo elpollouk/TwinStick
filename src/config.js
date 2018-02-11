@@ -14,7 +14,7 @@ Chicken.register("Config", [], () => {
         },
         ai: {
             enabled: true,
-            visualise: true,
+            visualise: false,
         },
         player: {
             acceleration: 25,

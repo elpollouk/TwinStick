@@ -2,13 +2,13 @@ Chicken.inject(["Config", "ConfigParser", "Gamepad", "Ai.Network", "Game", "Fiel
 function (Config, parseConfig, Gamepad, AiNetwork, Game, FieldVisualiser, UpdateLoop, Draw) {
     "use strict";
 
-    var visualiser;
     var game;
     var network = null;
+    var visualiser = null;
 
     var updater = new UpdateLoop((dt) => {
         game.update(dt);
-        visualiser.render();
+        visualiser && visualiser.render();
         network && network.update(dt);
     });
 
