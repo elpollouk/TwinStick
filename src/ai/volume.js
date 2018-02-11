@@ -27,7 +27,7 @@ Chicken.register("Ai.Volume", [], () => {
             if (z < 0 || this._depth <= z)
                 throw new Error('Z value is out of range');
 
-                for (var y = 0; y < this._height; y++)
+            for (var y = 0; y < this._height; y++)
                 for (var x = 0; x < this._width; x++)
                     this._array[this._posToIndex(x, y, z)] = fillerFunc(x, y, z);
         },
@@ -60,7 +60,7 @@ Chicken.register("Ai.Volume", [], () => {
 
         filter: function (filterVolume, outputVolume, outputZ) {
             outputZ = outputZ || 0;
-            
+
             if (this._depth != filterVolume.depth)
                 throw new Error('Filter depth does not match volume depth');
             if (this._width < filterVolume.width || this._height < filterVolume.height)
