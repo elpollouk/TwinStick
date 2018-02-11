@@ -1,20 +1,34 @@
-Chicken.inject(["Config", "ConfigParser", "Gamepad", "Ai.Controller", "Game", "FieldVisualiser", "ChickenVis.UpdateLoop", "ChickenVis.Draw"],
-function (Config, parseConfig, Gamepad, AiController, Game, FieldVisualiser, UpdateLoop, Draw) {
+Chicken.inject(["Config", "ConfigParser", "Gamepad", "Ai.Network", "Game", "FieldVisualiser", "ChickenVis.UpdateLoop", "ChickenVis.Draw"],
+function (Config, parseConfig, Gamepad, AiNetwork, Game, FieldVisualiser, UpdateLoop, Draw) {
     "use strict";
 
     var visualiser;
     var game;
+    var network = null;
+
     var updater = new UpdateLoop((dt) => {
         game.update(dt);
         visualiser.render();
+        network && network.update(dt);
     });
 
     window.onload = () => {
         parseConfig();
         var draw = new Draw(document.body, Config.game.width, Config.game.height);
-        var controller = Config.player.aiController ? new AiController() : new Gamepad();
+        var controller;
+        if (Config.ai.enabled) {
+            network = new AiNetwork(draw.context);
+            controller = network.controller;
+        } 
+        else {
+             controller = new Gamepad();
+        }
+
         game = new Game(draw, controller);
-        visualiser = new FieldVisualiser(draw.context, document.body);
+
+        if (network && Config.ai.visualise)
+            visualiser = new FieldVisualiser(network, document.body);
+
         updater.paused = false;
     }
 });

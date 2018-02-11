@@ -12,6 +12,10 @@ Chicken.register("Config", [], () => {
             deadzoneSize: 0.2,
             notConnectedWarning: true,
         },
+        ai: {
+            enabled: true,
+            visualise: true,
+        },
         player: {
             acceleration: 25,
             friction: 0.92,
@@ -19,7 +23,6 @@ Chicken.register("Config", [], () => {
             size: 15,
             colour: "rgb(0, 255, 0)",
             jitter: 0.2,
-            aiController: true,
             aimbot: false,
         },
         enemy: {

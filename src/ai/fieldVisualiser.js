@@ -1,7 +1,7 @@
 Chicken.register("FieldVisualiser", ["Config", "ChickenVis.Draw"], (Config, Draw) => {
     "use strict";
 
-    var stride = Config.fieldVisualiser.stride;
+    /*var stride = Config.fieldVisualiser.stride;
     var gameWidth = Config.game.width;
     var gameHeight = Config.game.height;
     var width = gameWidth / stride;
@@ -29,16 +29,26 @@ Chicken.register("FieldVisualiser", ["Config", "ChickenVis.Draw"], (Config, Draw
         data[red+1] = colour[1];
         data[red+2] = colour[2];
         data[red+3] = 255;
-    }
+    }*/
 
-    return Chicken.Class(function (context2d, container) {
-        this.draw = new Draw(container, width, height);
-        this.sourceCtx = context2d
+    return Chicken.Class(function (network, container) {
+        this.draw = new Draw(container, network._view.width, network._view.height);
+        this.network = network;
     }, {
         render: function () {
-            var source = this.sourceCtx.getImageData(0, 0, gameWidth, gameHeight);
+            var width = this.network._view.width;
+            var height = this.network._view.height;
             var target = this.draw.context.createImageData(width, height);
-            var x = 0;
+            for (var i = 0; i < this.network._view._array.length; i++) {
+                var v = this.network._view._array[i];
+                var o = i * 4;
+                target.data[o + 0] = v;
+                target.data[o + 1] = v;
+                target.data[o + 2] = v;
+                target.data[o + 3] = 255;
+            }
+
+            /*var x = 0;
             var y = 0;
             while (y < height) {
                 while (x < width) {
@@ -48,7 +58,7 @@ Chicken.register("FieldVisualiser", ["Config", "ChickenVis.Draw"], (Config, Draw
                 }
                 y++;
                 x = 0;
-            }
+            }*/
 
             this.draw.context.putImageData(target, 0, 0);
         }
