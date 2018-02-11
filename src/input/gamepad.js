@@ -61,7 +61,7 @@ Chicken.register("Gamepad", ["Config", "ChickenVis.Math"], (Config, Math) => {
             this.move.y = getAxes(gamePad, Axes.MoveY);
             this.shoot.x = getAxes(gamePad, Axes.ShootX);
             this.shoot.y = getAxes(gamePad, Axes.ShootY);
-            this._pressed = isButtonDown(gamePad);
+            this._buttonPressed = isButtonDown(gamePad);
         }
     }, {
         isDisconnected: {

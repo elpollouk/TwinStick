@@ -1,21 +1,29 @@
-Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Mode.Play", "Gamepad", "SoundPlayer", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
-(Config, Player, Bullet, Enemy, PlayMode, Gamepad, SoundPlayer, FdUpdater, Math) => {
+Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Mode.PreGame", "Mode.Play", "Gamepad", "SoundPlayer", "ChickenVis.FixedDeltaUpdater", "ChickenVis.Math"],
+(Config, Player, Bullet, Enemy, PreGameMode, PlayMode, Gamepad, SoundPlayer, FdUpdater, Math) => {
     "use strict";
 
     return Chicken.Class(function (draw) {
         var that = this;
         this.draw = draw;
+        this.score = 0;
         this.highScore = 0;
+        this.bullets = [];
+        this.enemies = [];
+
         this.controller = new Gamepad();
+        this.player = new Player(this, this.controller);
+
         this.fixedUpdater = new FdUpdater((dt) => {
             that._update(dt);
         }, Config.game.updatePeriod);
-        this.reset();
+
+        this._currentMode = new PreGameMode(this);
+        this._currentMode.start();
 
         this.sounds = new SoundPlayer();
     }, {
-        reset: function () {
-            this.player = new Player(this, this.controller);
+        startGame: function () {
+            this.player.reset();
             this.bullets = [];
             this.enemies = [];
             this.score = 0;
@@ -65,9 +73,10 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Mode.Play", "G
         killPlayer: function () {
             if (this.highScore < this.score)
                 this.highScore = this.score;
-            this.reset();
 
             this.sounds.playPlayerDeath();
+
+            this._currentMode = new PreGameMode(this);
         },
 
         enforceBounds: function(vector2, width) {
@@ -97,8 +106,8 @@ Chicken.register("Game", ["Config", "Player", "Bullet", "Enemy", "Mode.Play", "G
 
             this._currentMode.render(dt, draw);
     
-            draw.text(`${this.score}`, 5, 5);
-            draw.text(`${this.highScore}`, 5, 15);
+            draw.text(`Score      : ${this.score}`, 5, 5);
+            draw.text(`High Score : ${this.highScore}`, 5, 15);
 
             this._renderControllerWarning();
         },
