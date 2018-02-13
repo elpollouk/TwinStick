@@ -8,6 +8,9 @@ Chicken.register("Config", [], () => {
             burstSize: 24,
             enableSounds: true,
         },
+        gfx: {
+            visualEcho: 0.45
+        },
         controller: {
             deadzoneSize: 0.2,
             notConnectedWarning: true,
